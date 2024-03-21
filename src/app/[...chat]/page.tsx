@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
-import FormSection from "@/containers/chat-page/form-section";
-import SidebarSection from "@/containers/chat-page/sidebar-section";
+import FormSection from "@/app/api/containers/chat-page/form-section";
+import SidebarSection from "@/app/api/containers/chat-page/sidebar-section";
 
 export const metadata: Metadata = {
   title: "New chat",

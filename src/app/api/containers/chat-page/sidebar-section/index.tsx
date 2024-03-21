@@ -4,7 +4,7 @@ import React from "react";
 const SidebarSection = () => {
   return (
     <>
-      <div className="bg-gray-900 text-white">
+      <div className="bg-gray-800 text-white">
         <Link href="/api/auth/logout">Logout</Link>
       </div>
     </>
