@@ -1,34 +1,39 @@
-import { OpenAIEdgeStream } from "openai-edge-stream";
+import OpenAI from 'openai';
+import { OpenAIStream, StreamingTextResponse } from 'ai';
+import { NextResponse } from 'next/server';
 
-export const config = {
-    runtime: "edge",
-};
+// Create an OpenAI API client (that's edge friendly!)
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY, 
+});
+
+// IMPORTANT! Set the runtime to edge
+export const runtime = 'edge';
 
 export async function POST(req: Request) {
-    console.log('messagexxx')
     try {
-        const { message } = await req.json();
+        const { messages } = await req.json();
 
-        const stream = await OpenAIEdgeStream('https://api.openai.com/v1/chat/completions',
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-                },
+        // Ask OpenAI for a streaming chat completion given the prompt
+        const response = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo',
+            stream: true,
+            messages,
+            
+        });
 
-                method: 'POST',
-                body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages: [{ content: message, role: 'user' }],
-                    stream: true
-                }),
-            }
-        )
-
-        console.log(stream, 'stream')
-
-        return new Response(stream);
+        // Convert the response into a friendly text-stream
+        const stream = OpenAIStream(response);
+        // Respond with the stream
+        return new StreamingTextResponse(stream);
     } catch (error) {
-        console.log('AN ERROR OCCURRED IN SEND MESSAGE')
+        if (error instanceof OpenAI.APIError) {
+            const { name, status, headers, message } = error;
+            return NextResponse.json({ name, status, headers, message }, { status });
+        } else {
+            throw error;
+        }
     }
 }
+
+

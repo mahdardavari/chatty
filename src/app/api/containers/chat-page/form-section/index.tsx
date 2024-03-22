@@ -1,30 +1,11 @@
 "use client";
-import { streamReader } from "openai-edge-stream";
-import React, { FormEvent, useState } from "react";
+import { useChat } from "ai/react";
 
 const FormSection = () => {
-  const [message, setMessage] = useState("");
-
-  const handleSubmit = async (e: FormEvent<HTMLElement>) => {
-    e.preventDefault();
-
-    const response = await fetch("/api/chat/POST", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ message: message }),
-    });
-
-    const data = response.body;
-    if (!data) {
-      return;
-    }
-
-    const reader = data.getReader();
-    await streamReader(reader, async (message) => {
-      console.log(message, "mxx");
-    });
-  };
-
+  const { messages, input, handleInputChange, handleSubmit, data } = useChat();
+  {
+    console.log(data, messages, "data");
+  }
   return (
     <div className="bg-gray-800 p-10">
       <form onSubmit={handleSubmit}>
@@ -33,8 +14,8 @@ const FormSection = () => {
           <textarea
             className="w-full resize-none bg-gray-700 rounded-md px-2 text-white focus::bg-gray-600 focus:border-emerald-500 focus:outline focus:outline-emerald-500"
             placeholder="Send a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={input}
+            onChange={handleInputChange}
           />
 
           <button className="btn" type="submit">
