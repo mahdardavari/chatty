@@ -1,62 +1,59 @@
 "use client";
-import { motion } from "framer-motion";
-import "../styles/Modal.css";
-import React, { FC, useEffect, useRef } from "react";
+import { useModalCloseListeners } from "@/app/hooks/useModalCloseListeners";
+import { motion, Variants } from "framer-motion";
+import React, { FC } from "react";
 import Backdrop from "../Backdrop";
+import "../styles/Modal.css";
 
 interface ModalProps {
   handleClose: () => void;
   children: React.ReactNode;
+  direction: "up" | "down" | "left" | "right";
 }
 
-const dropIn = {
-  hidden: {
-    y: "-100vh",
-    opacity: 0,
-  },
-  visible: {
-    y: "0",
-    opacity: 1,
-    transition: {
-      duration: 0.1,
-      type: "spring",
-      damping: 25,
-      stiffness: 500,
-    },
-  },
-  exit: {
-    y: "100vh",
-    opacity: 0,
-  },
+const getVariants = (direction: string): Variants => {
+  let variants: Variants;
+  switch (direction) {
+    case "up":
+      variants = {
+        hidden: { y: "-100vh", opacity: 0 },
+        visible: { y: "0", opacity: 1 },
+        exit: { y: "-100vh", opacity: 0 },
+      };
+      break;
+    case "down":
+      variants = {
+        hidden: { y: "100vh", opacity: 0 },
+        visible: { y: "0", opacity: 1 },
+        exit: { y: "100vh", opacity: 0 },
+      };
+      break;
+    case "left":
+      variants = {
+        hidden: { x: "-100vw", opacity: 0 },
+        visible: { x: "0", opacity: 1 },
+        exit: { x: "-100vw", opacity: 0 },
+      };
+      break;
+    case "right":
+      variants = {
+        hidden: { x: "100vw", opacity: 0 },
+        visible: { x: "0", opacity: 1 },
+        exit: { x: "100vw", opacity: 0 },
+      };
+      break;
+    default:
+      variants = {
+        hidden: { y: "-100vh", opacity: 0 },
+        visible: { y: "0", opacity: 1 },
+        exit: { y: "-100vh", opacity: 0 },
+      };
+  }
+  return variants;
 };
 
-const Modal: FC<ModalProps> = ({ children, handleClose }) => {
-  const modalRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        handleClose(); // Close modal on ESC key press
-      }
-    };
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        handleClose();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [handleClose]);
+const Modal: FC<ModalProps> = ({ children, handleClose, direction = "up" }) => {
+  const dropIn = getVariants(direction);
 
   const handleBackdropClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -65,6 +62,7 @@ const Modal: FC<ModalProps> = ({ children, handleClose }) => {
     handleClose();
   };
 
+  const modalRef = useModalCloseListeners(handleClose);
   return (
     <>
       <Backdrop onClick={handleBackdropClick}>

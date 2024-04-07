@@ -27,7 +27,14 @@ const ModalSection = () => {
         // Fires when all exiting nodes have completed animating out
         onExitComplete={() => null}
       >
-        {modalOpen && <Modal handleClose={close}>adadasd</Modal>}
+        {modalOpen && (
+          <Modal direction="right" handleClose={close}>
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aspernatur
+            porro possimus laborum quos magnam aliquid quas modi numquam eveniet
+            qui, ipsam autem ipsum quia hic debitis sed nostrum, commodi
+            blanditiis?
+          </Modal>
+        )}
       </AnimatePresence>
     </div>
   );
